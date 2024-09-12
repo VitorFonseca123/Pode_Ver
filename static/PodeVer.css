@@ -1,7 +1,66 @@
+body {
+    background-color: #191919;
+    color: white;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 10px 20px;
+}
+.navbar-brand {
+    font-size: 24px;
+    color: white;
+}
+.close-button {
+    display: flex;
+    align-items: center; /* Centralizar o texto verticalmente */
+    justify-content: center; /* Centralizar o texto horizontalmente */
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 0;
+    width: 100%; /* Isso garante que o botão ocupe toda a largura do contêiner pai */
+     
+}
+.open-sidebar-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 0;
+    height: 100%;
+    
+}
+
+.open-sidebar-button:hover {
+    background-color: #191919;
+    padding: 10px 20px; /* Manter o padding original */
+    height: 100%; /* Garantir que preencha toda a altura do contêiner pai */
+   
+    box-sizing: border-box; /* Incluir o padding no cálculo da largura/altura */
+    border: none;
+}
+
+.close-button:hover {
+    background-color: #191919;
+}
+
 .movie-list {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    justify-content: flex-start; /* Alinhar os itens à esquerda */
+    margin-left: 50px; /* Adicionar margem à esquerda */
 }
 .movie-item {
     display: flex;
@@ -12,4 +71,101 @@
 .movie-item img {
     width: 100%;
     height: auto;
+}
+.search-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.search-bar {
+    border: none;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    width: 300px;
+    font-size: 16px;
+}
+.search-bar:focus {
+    outline: none;
+}
+.search-button {
+    border: none;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: #e50914;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+.search-button:hover {
+    background-color: #f40612;
+}
+.search-button i {
+    font-size: 16px;
+}
+.add-button {
+    background-color: #e50914;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.add-button:hover {
+    background-color: #f40612;
+}
+.sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: -400px; /* Inicialmente escondida */
+    background-color: #333;
+    color: white;
+    padding: 0; /* Remover padding */
+    overflow-y: auto;
+    transition: left 0.3s;
+    visibility: hidden; /* Inicialmente invisível */
+}
+.sidebar.visible {
+    left: 0; /* Mostrar a barra lateral */
+    visibility: visible; /* Tornar visível */
+}
+.sidebar h2 {
+    text-align: center;
+    padding: 20px; /* Adicionar padding ao título */
+}
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+.sidebar li {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px; /* Adicionar padding aos itens da lista */
+}
+.sidebar img {
+    width: 50px;
+    height: auto;
+    margin-right: 10px;
+}
+.delete-button {
+    background-color: #e50914;
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.delete-button:hover {
+    background-color: #f40612;
 }
