@@ -1,16 +1,31 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Filme</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/PodeVer.css') }}">
+    <link rel="stylesheet" href="/static/PodeVer.css">
 </head>
 <body>
-    <h1>Adicionar Novo Filme</h1>
-    <form action='/Search' id="SearchMovie" method="post">
-        <input type="text" name="movie_name" placeholder="Digite o nome do filme" required>
+    <h1>Pesquisar Filme</h1>
+    <form method="POST" action="/">
+        <input type="text" name="movie_name" placeholder="Nome do Filme" required>
         <button type="submit">Pesquisar</button>
     </form>
+    {% if search_term %}
+        <h2>Resultados para: "{{ search_term }}"</h2>
+    {% endif %}
+    <h2>Resultados da Pesquisa</h2>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <div class="movie-list">
+        {% for movie in movies %}
+            <div class="movie-item">
+                <img src="{{ movie['Poster_Url'] }}" alt="{{ movie['Title'] }} poster">
+                <h3>{{ movie['Title'] }}</h3>
+            </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
