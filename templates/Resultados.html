@@ -31,19 +31,19 @@
     </div>
    
     <h1>Resultados</h1>
-    {% if filme %}
-        <div class="movie-container">
-            <h2>{{ filme }}</h2>
-            {% if poster %}
-                <img src="{{ poster }}" alt="Poster do filme">
-            {% endif %}
-            {% if descricao %}
-                <p>{{ descricao }}</p>
-            {% endif %}
-        </div>
-    {% else %}
-        <p>Nenhum filme encontrado.</p>
+{% if filme %}
+<div class="movie-container">
+    <div class="movie-details">
+        <p>Filme: {{ filme }}</p>
+        {% if descricao %}
+            <p>Descricao: {{ descricao }}</p>
+        {% endif %}
+    </div>
+    {% if poster %}
+        <img src="{{ poster }}" alt="Poster do filme">
     {% endif %}
+</div>
+{% endif %}
     </body>
     
     </html>

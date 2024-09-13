@@ -232,8 +232,8 @@ body {
 
 /* Ajustar o tamanho do pôster */
 .movie-container img {
-    max-width: 50%; /* Ajuste a largura máxima para 50% */
-    height: auto; /* Manter a proporção da imagem */
+    max-width: 100%;
+    height:min-content
     border-radius: 10px;
     margin-bottom: 20px;
 }
