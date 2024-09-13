@@ -4,28 +4,52 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
 }
+
+/* Garantir que a navbar ocupe 100% da largura e altura desejada */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #333;
-    padding: 10px 20px;
+    width: 100%;
+    background-color: #333; /* Cor de fundo da navbar */
+    padding: 0;
+    height: 60px; /* Defina a altura desejada para a navbar */
 }
-.navbar-brand {
-    font-size: 24px;
+
+/* Para garantir que todos os elementos dentro da navbar estejam centralizados verticalmente */
+.container {
+    display: flex;
+    align-items: center; /* Centraliza o conteúdo verticalmente */
+    justify-content: space-between; /* Espaçamento horizontal adequado */
+    height: 100%;
+    padding: 0 20px; /* Espaçamento interno (opcional) */
+}
+
+/* O botão vermelho ocupa todo o espaço vertical da navbar */
+.minha-lista {
+    background-color: #333; /* Cor de fundo vermelha */
+    padding: 0 20px; /* Espaçamento interno à direita e à esquerda */
+    height: 100%; /* Ocupa toda a altura da navbar */
+    display: flex;
+    align-items: center; /* Centraliza o texto verticalmente */
     color: white;
+    text-decoration: none; /* Remove o sublinhado */
+    font-weight: bold;
+}
+.minha-lista:hover {
+    background-color: #191919; /* Cor de fundo vermelha mais escura */
 }
 .close-button {
-    display: flex;
+    
     align-items: center; /* Centralizar o texto verticalmente */
     justify-content: center; /* Centralizar o texto horizontalmente */
     background-color: #333;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding-top: 10px;
     cursor: pointer;
+    height:60px ;
     border-radius: 0;
     width: 100%; /* Isso garante que o botão ocupe toda a largura do contêiner pai */
+    font-weight: bold;
+    
      
 }
 .open-sidebar-button {
@@ -126,18 +150,19 @@ body {
     width: 250px;
     position: fixed;
     top: 0;
-    left: -400px; /* Inicialmente escondida */
+    right: -400px; /* Inicialmente escondida */
     background-color: #333;
     color: white;
     padding: 0; /* Remover padding */
     overflow-y: auto;
-    transition: left 0.3s;
+    transition: right 0.3s;
     visibility: hidden; /* Inicialmente invisível */
 }
 .sidebar.visible {
-    left: 0; /* Mostrar a barra lateral */
+    right: 0; /* Mostrar a barra lateral */
     visibility: visible; /* Tornar visível */
 }
+
 .sidebar h2 {
     text-align: center;
     padding: 20px; /* Adicionar padding ao título */
