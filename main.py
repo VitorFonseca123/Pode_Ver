@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
 
 app = Flask(__name__)
@@ -40,6 +40,17 @@ def Home():
         else:
             error = "Erro ao carregar o dataset."
     return render_template('AdicionarFilme.html', movies=movies, error=error, search_term=search_term)
+
+@app.route('/enviar_filmes', methods=['POST'])
+def enviar_filmes():
+    data = request.get_json()
+    filmes = data.get('filmes', [])
+    print(filmes)
+    return jsonify({'status': 'success', 'filmes': filmes})
+
+@app.route('/resultados')
+def resultados():
+    return render_template('Resultados.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

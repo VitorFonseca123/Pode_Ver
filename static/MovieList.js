@@ -15,11 +15,11 @@ function addToCart(movieTitle, moviePosterUrl) {
     const listItem = document.createElement('li');
     const img = document.createElement('img');
     const deleteButton = document.createElement('button');
-    
+
     img.src = moviePosterUrl;
     deleteButton.textContent = 'Excluir';
     deleteButton.className = 'delete-button';
-    deleteButton.onclick = function() {
+    deleteButton.onclick = function () {
         cartList.removeChild(listItem);
         saveCartToLocalStorage();
         if (cartList.children.length === 0) {
@@ -65,11 +65,11 @@ function loadCartFromLocalStorage() {
         const listItem = document.createElement('li');
         const img = document.createElement('img');
         const deleteButton = document.createElement('button');
-        
+
         img.src = movie.posterUrl;
         deleteButton.textContent = 'Excluir';
         deleteButton.className = 'delete-button';
-        deleteButton.onclick = function() {
+        deleteButton.onclick = function () {
             cartList.removeChild(listItem);
             saveCartToLocalStorage();
             if (cartList.children.length === 0) {
@@ -86,11 +86,34 @@ function loadCartFromLocalStorage() {
 
 function classToggle() {
     const navs = document.querySelectorAll('.Navbar__Items')
-    
+
     navs.forEach(nav => nav.classList.toggle('Navbar__ToggleShow'));
-  }
-  
-  document.querySelector('.Navbar__Link-toggle')
+}
+
+document.querySelector('.Navbar__Link-toggle')
     .addEventListener('click', classToggle);
 
 
+function EnviarFilmes() {
+    const filmes = [];
+    document.querySelectorAll('#cart-list li').forEach(li => {
+        let filme = li.textContent.replace('Excluir', '').trim();
+        filmes.push(filme);
+    });
+
+    fetch('/enviar_filmes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filmes: filmes })
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            window.location.href = '/resultados'; // Redireciona para a rota Flask
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}

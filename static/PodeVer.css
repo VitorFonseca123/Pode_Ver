@@ -158,6 +158,27 @@ body {
     transition: right 0.3s;
     visibility: hidden; /* Inicialmente invisível */
 }
+.enviar-button {
+    position: sticky;
+    bottom: 10px;
+    width: calc(100% - 20px); /* Ajusta a largura do botão */
+    margin: 10px; /* Ajusta a posição do botão */
+    background-color: #e50914; /* Cor de fundo */
+    color: white; /* Cor do texto */
+    border: none; /* Sem borda */
+    padding: 10px 20px; /* Espaçamento interno */
+    cursor: pointer; /* Cursor de ponteiro */
+    border-radius: 5px; /* Bordas arredondadas */
+    font-size: 16px; /* Tamanho da fonte */
+    text-align: center; /* Alinhamento do texto */
+    text-decoration: none; /* Sem sublinhado */
+    display: inline-block; /* Exibição inline-block */
+    transition: background-color 0.3s; /* Transição suave para a cor de fundo */
+}
+
+.enviar-button:hover {
+    background-color:#a61920; /* Cor de fundo ao passar o mouse */
+}
 .sidebar.visible {
     right: 0; /* Mostrar a barra lateral */
     visibility: visible; /* Tornar visível */
