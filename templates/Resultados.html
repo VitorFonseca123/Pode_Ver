@@ -7,7 +7,8 @@
     <title>Adicionar Filme</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='PodeVer.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <script src="{{ url_for('static', filename='MovieList.js') }}"></script>
+    <script src="{{ url_for('static', filename='Resultados.js') }}"></script>
 </head>
 
 <body>
@@ -19,7 +20,7 @@
         </div>
     </nav>
     <br>
-    
+   
     <div class="sidebar" id="sidebar">
         <button class="close-button" onclick="closeSidebar()">Fechar</button>
         <h2>Minha Lista</h2>
@@ -28,7 +29,21 @@
         </ul>
         <button class="enviar-button" onclick="EnviarFilmes()">Enviar</button>
     </div>
-    <script src="{{ url_for('static', filename='MovieList.js') }}"></script>
+   
+    <h1>Resultados</h1>
+    {% if filme %}
+        <div class="movie-container">
+            <h2>{{ filme }}</h2>
+            {% if poster %}
+                <img src="{{ poster }}" alt="Poster do filme">
+            {% endif %}
+            {% if descricao %}
+                <p>{{ descricao }}</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>Nenhum filme encontrado.</p>
+    {% endif %}
     </body>
     
     </html>

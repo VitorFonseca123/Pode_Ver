@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify, render_template, session
 import pandas as pd
 
 app = Flask(__name__)
@@ -43,14 +43,45 @@ def Home():
 
 @app.route('/enviar_filmes', methods=['POST'])
 def enviar_filmes():
+    print("Endpoint /enviar_filmes foi chamado")
     data = request.get_json()
+    print(f"Dados recebidos: {data}")
+    
     filmes = data.get('filmes', [])
-    print(filmes)
-    return jsonify({'status': 'success', 'filmes': filmes})
+    
+    # Pegar apenas o primeiro filme, se a lista não estiver vazia
+    primeiro_filme = filmes[0] if filmes else None
+    
+    if primeiro_filme:
+        print(f"Primeiro filme: {primeiro_filme}")
+    else:
+        print("Nenhum filme recebido")
+    
+    # Armazenar apenas o primeiro filme na sessão
+    session['primeiro_filme'] = primeiro_filme
+    
+    return jsonify({'status': 'success', 'primeiro_filme': primeiro_filme})
 
 @app.route('/resultados')
 def resultados():
-    return render_template('Resultados.html')
+    # Pegar o primeiro filme da sessão (ou None se não houver)
+    primeiro_filme = session.get('primeiro_filme')
+    
+    if primeiro_filme and not df.empty:
+        # Buscar o filme no DataFrame
+        filme_info = df[df['Title'] == primeiro_filme]
+        if not filme_info.empty:
+            poster = filme_info.iloc[0]['Poster_Url']
+            descricao = filme_info.iloc[0]['Overview'] if 'Overview' in filme_info.columns else 'Descrição não disponível'
+        else:
+            poster = None
+            descricao = None
+    else:
+        poster = None
+        descricao = None
+    
+    # Renderizar o template passando o nome do filme, pôster e descrição
+    return render_template('Resultados.html', filme=primeiro_filme, poster=poster, descricao=descricao)
 
 if __name__ == '__main__':
     app.run(debug=True)

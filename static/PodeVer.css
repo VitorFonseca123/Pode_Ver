@@ -215,3 +215,37 @@ body {
 .delete-button:hover {
     background-color: #f40612;
 }
+
+
+/* PodeVer.css */
+
+/* Estilizar o contêiner do filme */
+.movie-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+/* Ajustar o tamanho do pôster */
+.movie-container img {
+    max-width: 50%; /* Ajuste a largura máxima para 50% */
+    height: auto; /* Manter a proporção da imagem */
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* Estilizar o título do filme */
+.movie-container h2 {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+/* Estilizar a descrição do filme */
+.movie-container p {
+    font-size: 1.2em;
+    line-height: 1.5;
+}
