@@ -83,5 +83,13 @@ def resultados():
     # Renderizar o template passando o nome do filme, pôster e descrição
     return render_template('Resultados.html', filme=primeiro_filme, poster=poster, descricao=descricao)
 
+@app.route('/AdicionarFilme')
+def AdicionarFilme():
+    return render_template('AdicionarFilme.html', movies=movies, error=error, search_term=search_term)
+@app.route('/Quizz')
+def Quizz():
+    return render_template('Quizz.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)

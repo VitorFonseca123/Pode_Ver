@@ -16,23 +16,33 @@ body {
 /* Para garantir que todos os elementos dentro da navbar estejam centralizados verticalmente */
 .container {
     display: flex;
-    align-items: center; /* Centraliza o conteúdo verticalmente */
-    justify-content: space-between; /* Espaçamento horizontal adequado */
+    align-items: center;
+    justify-content: space-between; /* Mantém o Pode Ver! à esquerda e os outros à direita */
     height: 100%;
-    padding: 0 20px; /* Espaçamento interno (opcional) */
+    padding: 0 20px;
 }
 
-/* O botão vermelho ocupa todo o espaço vertical da navbar */
-.minha-lista {
-    background-color: #333; /* Cor de fundo vermelha */
-    padding: 0 20px; /* Espaçamento interno à direita e à esquerda */
-    height: 100%; /* Ocupa toda a altura da navbar */
+.nav-right {
     display: flex;
-    align-items: center; /* Centraliza o texto verticalmente */
+    gap: 20px; /* Ajusta o espaçamento entre os itens à direita */
+    height: 100%;
+    
     color: white;
-    text-decoration: none; /* Remove o sublinhado */
+    text-decoration: none;
     font-weight: bold;
 }
+
+.minha-lista {
+    background-color: #333;
+    padding: 0 10px; /* Ajuste o padding para controlar o espaço */
+    height: 100%;
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
 .minha-lista:hover {
     background-color: #191919; /* Cor de fundo vermelha mais escura */
 }
