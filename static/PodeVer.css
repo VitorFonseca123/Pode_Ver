@@ -12,7 +12,9 @@ body {
     padding: 0;
     height: 60px; /* Defina a altura desejada para a navbar */
 }
-
+.podever{
+    font-size:40px;
+}
 /* Para garantir que todos os elementos dentro da navbar estejam centralizados verticalmente */
 .container {
     display: flex;
@@ -167,6 +169,14 @@ body {
     overflow-y: auto;
     transition: right 0.3s;
     visibility: hidden; /* Inicialmente invisível */
+}
+.start-button{
+    background-color: #e50914;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
 }
 .enviar-button {
     position: sticky;

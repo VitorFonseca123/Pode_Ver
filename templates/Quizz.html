@@ -13,7 +13,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand">Pode Ver!</a>
+            <a class="navbar-brand podever">Pode Ver!</a>
             <div class="nav-right">
                 <a class="minha-lista" href="{{ url_for('Home') }}">Adicionar Filme</a>
                 <a class="minha-lista" onclick="openSidebar()">Minha Lista</a>
@@ -21,7 +21,14 @@
         </div>
     </nav>
     <br>
-    
+    <center>
+        <h1>Recomendação de Filme</h1> 
+        <p>Não consegue se dedicir em qual filme você quer assistir? Responda algumas perguntas apertando
+            o botão abaixo e nós te daremos uma recomendação!
+        </p>
+        <br>
+        <button class="start-button">Começar</button>
+    </center>
    
     </div>
     <div class="sidebar" id="sidebar">
