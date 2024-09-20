@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'PODEVER'
 
 # Definir o caminho correto para o CSV
-csv_path = os.path.join(os.path.dirname(__file__), 'dataset.csv')
+csv_path = os.path.join(os.path.dirname(__file__), 'dataset_com_titulos_portugues.csv')
 
 # Carregar o dataset CSV
 try:
@@ -14,8 +14,8 @@ try:
     df = pd.read_csv(csv_path, delimiter=',', encoding='utf-8', engine='python', on_bad_lines='skip')
     print("Arquivo CSV carregado com sucesso.")
     print(f"Colunas disponíveis no DataFrame: {df.columns.tolist()}")
-    if 'Title' not in df.columns or 'Poster_Url' not in df.columns:
-        raise KeyError("As colunas 'Title' ou 'Poster_Url' não foram encontradas no arquivo CSV.")
+    if 'titulo_portugues' not in df.columns or 'Poster_Url' not in df.columns:
+        raise KeyError("As colunas 'titulo_portugues' ou 'Poster_Url' não foram encontradas no arquivo CSV.")
 except (pd.errors.ParserError, KeyError) as e:
     print(f"Erro ao ler o arquivo CSV: {e}")
     df = pd.DataFrame()  # Cria um DataFrame vazio em caso de erro
@@ -27,11 +27,11 @@ def Home():
     search_term = ""
     if request.method == 'POST':
         search_term = request.form.get('movie_name')
-        # Verificar se o DataFrame não está vazio e contém as colunas 'Title' e 'Poster_Url'
-        if not df.empty and 'Title' in df.columns and 'Poster_Url' in df.columns:
+        # Verificar se o DataFrame não está vazio e contém as colunas 'titulo_portugues' e 'Poster_Url'
+        if not df.empty and 'titulo_portugues' in df.columns and 'Poster_Url' in df.columns:
             print(f"Pesquisando por filmes com o nome: {search_term}")
             # Lógica para pesquisar o filme no dataset
-            results = df[df['Title'].str.contains(search_term, case=False, na=False)]
+            results = df[df['titulo_portugues'].str.contains(search_term, case=False, na=False)]
             movies = results.to_dict(orient='records')
             if not movies:
                 error = "Nenhum filme encontrado."
@@ -67,9 +67,19 @@ def resultados():
     # Pegar o primeiro filme da sessão (ou None se não houver)
     primeiro_filme = session.get('primeiro_filme')
     
+    # Debug: Verificar se primeiro_filme está na sessão
+    print(f"Primeiro filme na sessão: {primeiro_filme}")
+    
     if primeiro_filme and not df.empty:
+        # Debug: Verificar o conteúdo do DataFrame
+        print(f"Conteúdo do DataFrame: {df.head()}")
+        
         # Buscar o filme no DataFrame
-        filme_info = df[df['Title'] == primeiro_filme]
+        filme_info = df[df['titulo_portugues'] == primeiro_filme]
+        
+        # Debug: Verificar se a busca no DataFrame retornou resultados
+        print(f"Informações do filme encontrado: {filme_info}")
+        
         if not filme_info.empty:
             poster = filme_info.iloc[0]['Poster_Url']
             descricao = filme_info.iloc[0]['Overview'] if 'Overview' in filme_info.columns else 'Descrição não disponível'
@@ -80,12 +90,11 @@ def resultados():
         poster = None
         descricao = None
     
-    # Renderizar o template passando o nome do filme, pôster e descrição
+    # Debug: Verificar os valores de poster e descricao
+    print(f"Poster: {poster}, Descrição: {descricao}")
+    
     return render_template('Resultados.html', filme=primeiro_filme, poster=poster, descricao=descricao)
 
-@app.route('/AdicionarFilme')
-def AdicionarFilme():
-    return render_template('AdicionarFilme.html', movies=movies, error=error, search_term=search_term)
 @app.route('/Quizz')
 def Quizz():
     return render_template('Quizz.html')

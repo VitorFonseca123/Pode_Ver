@@ -36,9 +36,9 @@
     <div class="movie-list">
         {% for movie in movies %}
         <div class="movie-item">
-            <img src="{{ movie['Poster_Url'] }}" alt="{{ movie['Title'] }} poster">
-            <h3>{{ movie['Title'] }}</h3>
-            <button class="add-button" data-title="{{ movie['Title'] }}"
+            <img src="{{ movie['Poster_Url'] }}" alt="{{ movie['titulo_portugues'] }} poster">
+            <h3>{{ movie['titulo_portugues'] }}</h3>
+            <button class="add-button" data-title="{{ movie['titulo_portugues'] }}"
                 data-poster="{{ movie['Poster_Url'] }}">Adicionar</button>
         </div>
         {% endfor %}
