@@ -15,39 +15,20 @@
         <div class="container">
             <a class="navbar-brand podever"  href="{{ url_for('Home') }}">Pode Ver!</a>
             <div class="nav-right">
+                <a class="minha-lista" href="{{ url_for('AdicionarFilme') }}">AdicionarFilme</a>
                 <a class="minha-lista" href="{{ url_for('Quizz') }}">Quizz</a>
                 <a class="minha-lista" onclick="openSidebar()">Minha Lista</a>
             </div>
         </div>
     </nav>
-    
-    <div class="Conteudo"> 
-        <div class"search">
-            <form method="GET" action="/AdicionarFilme" class="search-form">
-                <input type="text" name="movie_name" class="search-bar" placeholder="Nome do Filme" required>
-                <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
-            </form>
+   
+        <div class="banner">
+           <p>Que filme escolher? Pode ver!</p>
+           
         </div>
-        {% if search_term %}
-        <h2>Resultados para: "{{ search_term }}"</h2>
-        {% endif %}
-        <h2>Resultados da Pesquisa</h2>
-        {% if error %}
-        <p style="color: red;">{{ error }}</p>
-        {% endif %}
-        <div class="movie-list">
-            {% for movie in movies %}
-            <div class="movie-item">
-                <img src="{{ movie['Poster_Url'] }}" alt="{{ movie['titulo_portugues'] }} poster">
-                <h3>{{ movie['titulo_portugues'] }}</h3>
-                <button class="add-button" data-title="{{ movie['titulo_portugues'] }}"
-                    data-poster="{{ movie['Poster_Url'] }}">Adicionar</button>
-            </div>
-            {% endfor %}
-    </div>
-
+   
     
-    </div>
+    
     <div class="sidebar" id="sidebar">
         <button class="close-button" onclick="closeSidebar()">Fechar</button>
         <h2>Minha Lista</h2>

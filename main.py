@@ -19,14 +19,22 @@ try:
 except (pd.errors.ParserError, KeyError) as e:
     print(f"Erro ao ler o arquivo CSV: {e}")
     df = pd.DataFrame()  # Cria um DataFrame vazio em caso de erro
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def Home():
+    return render_template('Home.html')
+
+@app.route('/AdicionarFilme', methods=['GET', 'POST'])
+def AdicionarFilme():
     error = None
     movies = []
     search_term = ""
+
     if request.method == 'POST':
         search_term = request.form.get('movie_name')
+    elif request.method == 'GET':
+        search_term = request.args.get('movie_name')
+
+    if search_term:
         # Verificar se o DataFrame não está vazio e contém as colunas 'titulo_portugues' e 'Poster_Url'
         if not df.empty and 'titulo_portugues' in df.columns and 'Poster_Url' in df.columns:
             print(f"Pesquisando por filmes com o nome: {search_term}")
@@ -39,6 +47,7 @@ def Home():
                 print(f"Filmes encontrados: {movies}")
         else:
             error = "Erro ao carregar o dataset."
+    
     return render_template('AdicionarFilme.html', movies=movies, error=error, search_term=search_term)
 
 @app.route('/enviar_filmes', methods=['POST'])
