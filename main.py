@@ -35,10 +35,8 @@ def AdicionarFilme():
         search_term = request.args.get('movie_name')
 
     if search_term:
-        # Verificar se o DataFrame não está vazio e contém as colunas 'titulo_portugues' e 'Poster_Url'
         if not df.empty and 'titulo_portugues' in df.columns and 'Poster_Url' in df.columns:
             print(f"Pesquisando por filmes com o nome: {search_term}")
-            # Lógica para pesquisar o filme no dataset
             results = df[df['titulo_portugues'].str.contains(search_term, case=False, na=False)]
             movies = results.to_dict(orient='records')
             if not movies:
@@ -47,8 +45,14 @@ def AdicionarFilme():
                 print(f"Filmes encontrados: {movies}")
         else:
             error = "Erro ao carregar o dataset."
-    
-    return render_template('AdicionarFilme.html', movies=movies, error=error, search_term=search_term)
+    else:
+        if not df.empty and 'titulo_portugues' in df.columns and 'Poster_Url' in df.columns:
+            movies = df.sample(n=5).to_dict(orient='records')  # Seleciona 5 filmes aleatórios
+            print(f"Filmes aleatórios exibidos: {movies}")
+        else:
+            error = "Erro ao carregar o dataset."
+
+    return render_template('AdicionarFilme.html', movies=movies, error=error)
 
 @app.route('/enviar_filmes', methods=['POST'])
 def enviar_filmes():
