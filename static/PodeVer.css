@@ -253,23 +253,24 @@ body {
 
 /* Estilizar o contêiner do filme */
 .movie-container {
+   display: flex;
+   flex-direction: row;
+}
+
+/* Ajustar o tamanho do pôster */
+.movie-container img {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     text-align: center;
     margin: 20px auto;
     max-width: 600px;
+    padding: auto;
 }
-
-/* Ajustar o tamanho do pôster */
-.movie-container img {
-    max-width: 100%;
-    height:min-content;
-    border-radius: 10px;
-    margin-bottom: 20px;
+.movie-details{
+    padding: 15px;
 }
-
 /* Estilizar o título do filme */
 .movie-container h2 {
     font-size: 2em;
@@ -305,5 +306,6 @@ body {
     width: 100%;
     box-sizing: border-box;
 }
+
 
 

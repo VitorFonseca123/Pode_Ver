@@ -32,19 +32,21 @@
         </ul>
         <button class="enviar-button" onclick="EnviarFilmes()">Enviar</button>
     </div>
-   
+   <div class="Conteudo"> 
     <h1>Resultados</h1>
 {% if filme %}
 <div class="movie-container">
+    
+    {% if poster %}
+        <img src="{{ poster }}" alt="Poster do filme">
+    {% endif %}
     <div class="movie-details">
         <p>Filme: {{ filme }}</p>
         {% if descricao %}
             <p>Descricao: {{ descricao }}</p>
         {% endif %}
     </div>
-    {% if poster %}
-        <img src="{{ poster }}" alt="Poster do filme">
-    {% endif %}
+    </div>
 </div>
 {% endif %}
     </body>
