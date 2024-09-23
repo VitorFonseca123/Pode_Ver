@@ -47,7 +47,7 @@ def AdicionarFilme():
             error = "Erro ao carregar o dataset."
     else:
         if not df.empty and 'titulo_portugues' in df.columns and 'Poster_Url' in df.columns:
-            movies = df.sample(n=5).to_dict(orient='records')  # Seleciona 5 filmes aleatórios
+            movies = df.sample(n=10).to_dict(orient='records')  # Seleciona 5 filmes aleatórios
             print(f"Filmes aleatórios exibidos: {movies}")
         else:
             error = "Erro ao carregar o dataset."
