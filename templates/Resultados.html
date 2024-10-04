@@ -23,7 +23,18 @@
         </div>
     </nav>
     <br>
-   
+    <div class="cortina">
+        <img class="cortina-left" src="/static/images/cortina_left.png" alt="Image 1">
+        <img class="cortina-right" src="/static/images/cortina_right.png" alt="Image 2">
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.querySelector('.cortina-left').classList.add('animate');
+                document.querySelector('.cortina-right').classList.add('animate');
+            }, 1000); // Delay before animation starts
+        });
+    </script>
     <div class="sidebar" id="sidebar">
         <button class="close-button" onclick="closeSidebar()">Fechar</button>
         <h2>Minha Lista</h2>

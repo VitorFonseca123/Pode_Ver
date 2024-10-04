@@ -308,4 +308,31 @@ body {
 }
 
 
+.cortina{
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
 
+.cortina-left, .cortina-right {
+    position: absolute;
+    top: 0;
+    transition: transform 2s ease-in-out;
+    width: 103%;
+    
+}
+.cortina-left {
+    left: 0;
+}
+.cortina-right {
+    right: 0;
+}
+.cortina-left.animate {
+    transform: translateX(-100%);
+}
+.cortina-right.animate {
+    transform: translateX(100%);
+}
