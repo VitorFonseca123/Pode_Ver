@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'PODEVER'
 
 # Definir o caminho correto para o CSV
-csv_path = os.path.join(os.path.dirname(__file__), 'dataset_com_titulos_portugues.csv')
+csv_path = os.path.join(os.path.dirname(__file__), 'filmes_populares_completos.csv')
 
 # Carregar o dataset CSV
 try:
@@ -14,8 +14,8 @@ try:
     df = pd.read_csv(csv_path, delimiter=',', encoding='utf-8', engine='python', on_bad_lines='skip')
     print("Arquivo CSV carregado com sucesso.")
     print(f"Colunas disponíveis no DataFrame: {df.columns.tolist()}")
-    if 'titulo_portugues' not in df.columns or 'Poster_Url' not in df.columns:
-        raise KeyError("As colunas 'titulo_portugues' ou 'Poster_Url' não foram encontradas no arquivo CSV.")
+    if 'titulo' not in df.columns or 'poster_url' not in df.columns:
+        raise KeyError("As colunas 'titulo' ou 'poster_url' não foram encontradas no arquivo CSV.")
 except (pd.errors.ParserError, KeyError) as e:
     print(f"Erro ao ler o arquivo CSV: {e}")
     df = pd.DataFrame()  # Cria um DataFrame vazio em caso de erro
@@ -35,9 +35,9 @@ def AdicionarFilme():
         search_term = request.args.get('movie_name')
 
     if search_term:
-        if not df.empty and 'titulo_portugues' in df.columns and 'Poster_Url' in df.columns:
+        if not df.empty and 'titulo' in df.columns and 'poster_url' in df.columns:
             print(f"Pesquisando por filmes com o nome: {search_term}")
-            results = df[df['titulo_portugues'].str.contains(search_term, case=False, na=False)]
+            results = df[df['titulo'].str.contains(search_term, case=False, na=False)]
             movies = results.to_dict(orient='records')
             if not movies:
                 error = "Nenhum filme encontrado."
@@ -46,7 +46,7 @@ def AdicionarFilme():
         else:
             error = "Erro ao carregar o dataset."
     else:
-        if not df.empty and 'titulo_portugues' in df.columns and 'Poster_Url' in df.columns:
+        if not df.empty and 'titulo' in df.columns and 'poster_url' in df.columns:
             movies = df.sample(n=10).to_dict(orient='records')  # Seleciona 5 filmes aleatórios
             print(f"Filmes aleatórios exibidos: {movies}")
         else:
@@ -88,14 +88,14 @@ def resultados():
         print(f"Conteúdo do DataFrame: {df.head()}")
         
         # Buscar o filme no DataFrame
-        filme_info = df[df['titulo_portugues'] == primeiro_filme]
+        filme_info = df[df['titulo'] == primeiro_filme]
         
         # Debug: Verificar se a busca no DataFrame retornou resultados
         print(f"Informações do filme encontrado: {filme_info}")
         
         if not filme_info.empty:
-            poster = filme_info.iloc[0]['Poster_Url']
-            descricao = filme_info.iloc[0]['Overview'] if 'Overview' in filme_info.columns else 'Descrição não disponível'
+            poster = filme_info.iloc[0]['poster_url']
+            descricao = filme_info.iloc[0]['sinopse'] if 'sinopse' in filme_info.columns else 'Descrição não disponível'
         else:
             poster = None
             descricao = None

@@ -38,10 +38,10 @@
         <div class="movie-list">
             {% for movie in movies %}
             <div class="movie-item">
-                <img src="{{ movie['Poster_Url'] }}" alt="{{ movie['titulo_portugues'] }} poster">
-                <h3>{{ movie['titulo_portugues'] }}</h3>
-                <button class="add-button" data-title="{{ movie['titulo_portugues'] }}"
-                    data-poster="{{ movie['Poster_Url'] }}">Adicionar</button>
+                <img src="{{ movie['poster_url'] }}" alt="{{ movie['titulo'] }} poster">
+                <h3>{{ movie['titulo'] }}</h3>
+                <button class="add-button" data-title="{{ movie['titulo'] }}"
+                    data-poster="{{ movie['poster_url'] }}">Adicionar</button>
             </div>
             {% endfor %}
     </div>
