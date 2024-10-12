@@ -1,22 +1,28 @@
 const questions = [
     {
+        question:"Como você está s sentindo hoje?",
+        options:["Feliz","Triste","Ansioso","Estressado","Cansado"],
+        type:"single"
+    },
+    {
         question: "Qual é o seu gênero de filme favorito?",
         options: ["Ação", "Comédia", "Drama", "Terror", "Aventura", "Thriller","Crime", "Romance", 
             "Ficção Científica", "Fantasia", "Animação", "Documentário", "Familia", "Mistério", "História",
-             "Biografia", "Musical", "Esportes", "Desastre", "Velho-Oeste", "Guerra", "Super-Herói", "Suspense"]
+             "Biografia", "Musical", "Esportes", "Desastre", "Velho-Oeste", "Guerra", "Super-Herói", "Suspense"],
+        type: "multiple"
     },
     {
-        question: "Qual é o seu diretor de filme favorito?",
-        options: ["Steven Spielberg", "Christopher Nolan", "Quentin Tarantino", "Martin Scorsese"]
+        Question: "Como deseja assistir o filme?",
+        options:["Sozinho","Família","Amigos","Namorado(a)"],
+        type:"single"
     },
-    {
-        question: "Qual é o seu ator ou atriz favorito?",
-        options: ["Leonardo DiCaprio", "Meryl Streep", "Robert De Niro", "Scarlett Johansson"]
-    },
-    {
-        question: "Qual é o seu filme favorito de todos os tempos?",
-        options: ["O Poderoso Chefão", "Pulp Fiction", "Forrest Gump", "Titanic"]
-    }
+   {
+    question: "Classificação indicativa do filme é importante para você?",
+    options: ["Livre", "10 anos", "12 anos", "14 anos", "16 anos", "18 anos"],
+    type: "single"
+   },
+
+    
 ];
 let currentQuestionIndex = 0;
 const answers = [];
@@ -25,9 +31,10 @@ function showNextQuestion() {
     const contentDiv = document.getElementById('content');
     if (currentQuestionIndex < questions.length) {
         const questionObj = questions[currentQuestionIndex];
+        const inputType = questionObj.type === "multiple" ? "checkbox" : "radio";
         const optionsHtml = questionObj.options.map(option => `
             <label>
-                <input type="checkbox" name="options" value="${option}"> ${option}
+                <input type="${inputType}" name="options" value="${option}"> ${option}
             </label><br>
         `).join('');
         contentDiv.innerHTML = `
@@ -45,8 +52,8 @@ function showNextQuestion() {
 }
 
 function submitAnswer() {
-    const selectedOptions = Array.from(document.querySelectorAll('input[name="options"]:checked'))
-        .map(checkbox => checkbox.value);
+    const selectedOptions = Array.from(document.querySelectorAll('input[name="options"]:checked, input[name="options"]:checked'))
+        .map(input => input.value);
     answers[currentQuestionIndex] = selectedOptions;
     currentQuestionIndex++;
     showNextQuestion();
