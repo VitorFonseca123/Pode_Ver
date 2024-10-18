@@ -23,6 +23,14 @@ def buscar_classificacao_etaria(movie_id, api_key):
             break
     return classificacao_etaria
 
+def buscar_palavras_chave(movie_id, api_key):
+    keywords_url = f"https://api.themoviedb.org/3/movie/{movie_id}/keywords?api_key={api_key}"
+    keywords_response = requests.get(keywords_url)
+    keywords_data = keywords_response.json()
+    
+    palavras_chave = ', '.join([kw['name'] for kw in keywords_data.get('keywords', [])])
+    return palavras_chave if palavras_chave else 'Não disponível'
+
 def buscar_detalhes_completos(movie_id, api_key):
     details_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=pt-BR"
     credits_url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={api_key}"
@@ -53,6 +61,9 @@ def buscar_detalhes_completos(movie_id, api_key):
     # Obtém a classificação etária
     classificacao_etaria = buscar_classificacao_etaria(movie_id, api_key)
 
+    # Obtém as palavras-chave
+    palavras_chave = buscar_palavras_chave(movie_id, api_key)
+
     return {
         "titulo_original": titulo_original,
         "titulo": titulo,
@@ -69,7 +80,8 @@ def buscar_detalhes_completos(movie_id, api_key):
         "duracao": duracao,
         "idioma": idioma,
         "poster_url": poster_url,
-        "classificacao_etaria": classificacao_etaria
+        "classificacao_etaria": classificacao_etaria,
+        "palavras_chave": palavras_chave
     }
 
 def atualizar_filmes_populares(api_key, paginas=1):
