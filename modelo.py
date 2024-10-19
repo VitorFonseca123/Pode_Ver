@@ -5,9 +5,9 @@ from sklearn.neighbors import NearestNeighbors
 def pre_processamento(filmes):
     filmes = filmes[['titulo_original','sinopse','generos','diretor','elenco','data_lancamento',
                      'popularidade', 'classificacao','votos','orcamento','receita','duracao',
-                     'idioma','classificacao_etaria']]
+                     'idioma','classificacao_etaria', 'palavras_chave']]
     filmes.rename(columns={'titulo_original':'tittle', 'data_lancamento':'lancamento',
-                           'classificacao_etaria':'idade'}, inplace=True)
+                           'classificacao_etaria':'idade', 'palavras_chave':'keywords'}, inplace=True)
     
     return filmes
     
