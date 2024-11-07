@@ -1,7 +1,6 @@
 import nltk
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 import re
 from nltk.corpus import stopwords
@@ -23,6 +22,8 @@ def preprocess_text(text):
 
 # Função para pré-processamento do DataFrame
 def pre_processamento(filmes):
+     # Remover filmes duplicados com base no título e sinopse (ajuste conforme necessário)
+    filmes = filmes.drop_duplicates(subset=['titulo', 'sinopse'], keep='last')
     # Fazendo uma cópia explícita para evitar o aviso SettingWithCopyWarning
     filmes = filmes[['titulo_original', 'sinopse', 'generos', 'diretor', 'elenco', 'data_lancamento',
                      'popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao',
@@ -44,29 +45,44 @@ def pre_processamento(filmes):
     filmes['ano_lancamento'] = pd.to_datetime(filmes['lancamento'], errors='coerce').dt.year
     filmes['idade_filme'] = 2024 - filmes['ano_lancamento']
     
-    # Normalizar colunas numéricas
-    scaler = MinMaxScaler()
-    filmes[['popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao']] = scaler.fit_transform(
-        filmes[['popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao']].fillna(0)
-    )
-    
     # Concatenar todas as características em um DataFrame final
-    filmes = pd.concat([
-        filmes[['tittle', 'diretor', 'ano_lancamento', 'idade_filme', 'popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao']],
-        pd.DataFrame(filmes['sinopse_tfidf'].to_list()), pd.DataFrame(filmes['keywords_tfidf'].to_list())
-    ], axis=1)
+    filmes = pd.concat([filmes[['tittle', 'diretor', 'ano_lancamento', 'idade_filme', 'popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao']],
+                        pd.DataFrame(filmes['sinopse_tfidf'].to_list()), pd.DataFrame(filmes['keywords_tfidf'].to_list())], axis=1)
+
+    filmes = filmes[filmes['votos'] > 100]
+    
+    # Garantir que todos os nomes de colunas são strings
+    filmes.columns = filmes.columns.astype(str)
+    filmes = filmes.fillna(0)
     
     return filmes
 
+
+def modelo(filmes):
+    # Selecionando apenas colunas numéricas para o modelo
+    filmes_numericos = filmes.select_dtypes(include=[np.number])
+
+    # Ajustando o modelo NearestNeighbors com as colunas numéricas
+    model = NearestNeighbors(algorithm='auto', leaf_size=30, metric='euclidean', n_jobs=None, n_neighbors=10)
+    model.fit(filmes_numericos)
+
+    print(filmes.iloc[[98]]['tittle']) 
+    filme_para_sugerir = filmes_numericos.iloc[[98]]  
+    
+    # Realizando a busca por filmes semelhantes
+    distance, sugestion = model.kneighbors(filme_para_sugerir)
+    suggestion_list = sugestion[0].tolist()  
+    #print(suggestion_list[0])
+    for i in range(suggestion_list.__len__()):
+        if i != 0:
+            print(filmes.iloc[[suggestion_list[i]]]['tittle'])
+
 def main():
-    print("Teste de pré-processamento")
     filmes = pd.read_csv('filmes_populares_completos.csv')
     filmes = pre_processamento(filmes)
-    print(filmes.head())  # Mostrar as primeiras linhas para verificar o pré-processamento
-
-    # Salvar o DataFrame final em um arquivo CSV
     filmes.to_csv('filmes_processados.csv', index=False)
-    print("DataFrame salvo como 'filmes_processados.csv'")
+    modelo(filmes)
+
 
 if __name__ == "__main__":
     main()
