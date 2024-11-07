@@ -6,6 +6,7 @@ import re
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from sklearn.neighbors import NearestNeighbors
+import joblib
 
 # Função para tokenização e remoção de stopwords
 def preprocess_text(text):
@@ -65,7 +66,7 @@ def modelo(filmes):
     # Ajustando o modelo NearestNeighbors com as colunas numéricas
     model = NearestNeighbors(algorithm='auto', leaf_size=30, metric='euclidean', n_jobs=None, n_neighbors=10)
     model.fit(filmes_numericos)
-
+    """
     print(filmes.iloc[[98]]['tittle']) 
     filme_para_sugerir = filmes_numericos.iloc[[98]]  
     
@@ -75,8 +76,8 @@ def modelo(filmes):
     #print(suggestion_list[0])
     for i in range(suggestion_list.__len__()):
         if i != 0:
-            print(filmes.iloc[[suggestion_list[i]]]['tittle'])
-
+            print(filmes.iloc[[suggestion_list[i]]]['tittle'])"""
+    joblib.dump(model, 'modelo_nearest_neighbors.joblib')
 def main():
     filmes = pd.read_csv('filmes_populares_completos.csv')
     filmes = pre_processamento(filmes)
