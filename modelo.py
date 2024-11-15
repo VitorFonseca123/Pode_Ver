@@ -23,16 +23,16 @@ def preprocess_text(text):
 
 # Função para pré-processamento do DataFrame
 def pre_processamento(filmes):
-     # Remover filmes duplicados com base no título e sinopse (ajuste conforme necessário)
+    # Remover filmes duplicados com base no título e sinopse (ajuste conforme necessário)
     filmes = filmes.drop_duplicates(subset=['titulo', 'sinopse'], keep='last')
-    # Fazendo uma cópia explícita para evitar o aviso SettingWithCopyWarning
+    
     filmes = filmes[['titulo_original', 'sinopse', 'generos', 'diretor', 'elenco', 'data_lancamento',
                      'popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao',
                      'idioma', 'classificacao_etaria', 'palavras_chave']].copy()
                      
     filmes.rename(columns={'titulo_original': 'tittle', 'data_lancamento': 'lancamento',
                            'classificacao_etaria': 'idade', 'palavras_chave': 'keywords'}, inplace=True)
-
+    
     # Preprocessamento de colunas de texto
     filmes['tittle'] = filmes['tittle'].apply(preprocess_text)
     filmes['sinopse'] = filmes['sinopse'].apply(lambda x: preprocess_text(str(x)))
@@ -47,42 +47,50 @@ def pre_processamento(filmes):
     filmes['idade_filme'] = 2024 - filmes['ano_lancamento']
     
     # Concatenar todas as características em um DataFrame final
-    filmes = pd.concat([filmes[['tittle', 'diretor', 'ano_lancamento', 'idade_filme', 'popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao']],
-                        pd.DataFrame(filmes['sinopse_tfidf'].to_list()), pd.DataFrame(filmes['keywords_tfidf'].to_list())], axis=1)
+    filmes.rename(columns={'titulo_original': 'title', 'data_lancamento': 'lancamento',
+                       'classificacao_etaria': 'idade', 'palavras_chave': 'keywords'}, inplace=True)
 
-    filmes = filmes[filmes['votos'] > 100]
-    
-    # Garantir que todos os nomes de colunas são strings
-    filmes.columns = filmes.columns.astype(str)
-    filmes = filmes.fillna(0)
+   
     
     return filmes
 
 
-def modelo(filmes):
+def modelo(filmes_processados, filmes):
+    filmes_processados = filmes_processados[filmes['votos'] > 100]
+    
+    # Garantir que todos os nomes de colunas são strings
+    filmes_processados.columns = filmes_processados.columns.astype(str)
+
+    filmes_processados = filmes_processados.fillna(0)
+
     # Selecionando apenas colunas numéricas para o modelo
-    filmes_numericos = filmes.select_dtypes(include=[np.number])
+    filmes_numericos = filmes_processados.select_dtypes(include=[np.number])
+    filmes_numericos_copy = filmes.select_dtypes(include=[np.number])
 
     # Ajustando o modelo NearestNeighbors com as colunas numéricas
     model = NearestNeighbors(algorithm='auto', leaf_size=30, metric='euclidean', n_jobs=None, n_neighbors=10)
     model.fit(filmes_numericos)
-    """
-    print(filmes.iloc[[98]]['tittle']) 
-    filme_para_sugerir = filmes_numericos.iloc[[98]]  
+    
+    print(filmes.iloc[[0]]['tittle']) 
+    filme_para_sugerir = filmes_numericos_copy.iloc[[0]] 
+    
     
     # Realizando a busca por filmes semelhantes
     distance, sugestion = model.kneighbors(filme_para_sugerir)
     suggestion_list = sugestion[0].tolist()  
     #print(suggestion_list[0])
+    
     for i in range(suggestion_list.__len__()):
         if i != 0:
-            print(filmes.iloc[[suggestion_list[i]]]['tittle'])"""
+            print(filmes.iloc[[suggestion_list[i]]]['tittle'])
     joblib.dump(model, 'modelo_nearest_neighbors.joblib')
+
 def main():
     filmes = pd.read_csv('filmes_populares_completos.csv')
+    filmes_processados = pre_processamento(filmes)
     filmes = pre_processamento(filmes)
-    filmes.to_csv('filmes_processados.csv', index=False)
-    modelo(filmes)
+    filmes_processados.to_csv('filmes_processados.csv', index=False)
+    modelo(filmes_processados, filmes)
 
 
 if __name__ == "__main__":
