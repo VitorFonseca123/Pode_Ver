@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import re
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from sklearn.neighbors import NearestNeighbors
+from sklearn.cluster import KMeans
 import joblib
 
 # Função para tokenização e remoção de stopwords
@@ -35,13 +35,17 @@ def pre_processamento(filmes):
     
     # Preprocessamento de colunas de texto
     filmes['tittle'] = filmes['tittle'].apply(preprocess_text)
+    filmes['elenco'] = filmes['elenco'].apply(preprocess_text)
     filmes['sinopse'] = filmes['sinopse'].apply(lambda x: preprocess_text(str(x)))
     
     # Vetorização TF-IDF para 'sinopse' e 'keywords'
     tfidf_vectorizer = TfidfVectorizer(max_features=500)
     filmes['sinopse_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['sinopse'].fillna('')).toarray())
     filmes['keywords_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['keywords'].fillna('')).toarray())
-    
+    filmes['diretor_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['diretor'].fillna('')).toarray())
+    filmes['idioma_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['idioma'].fillna('')).toarray())
+    filmes['elenco_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['elenco'].fillna('')).toarray())
+
     # Extrair ano e calcular idade do filme
     filmes['ano_lancamento'] = pd.to_datetime(filmes['lancamento'], errors='coerce').dt.year
     filmes['idade_filme'] = 2024 - filmes['ano_lancamento']
@@ -62,35 +66,17 @@ def modelo(filmes_processados, filmes):
     filmes_processados.columns = filmes_processados.columns.astype(str)
 
     filmes_processados = filmes_processados.fillna(0)
-
-    # Selecionando apenas colunas numéricas para o modelo
-    filmes_numericos = filmes_processados.select_dtypes(include=[np.number])
-    filmes_numericos_copy = filmes.select_dtypes(include=[np.number])
-
-    # Ajustando o modelo NearestNeighbors com as colunas numéricas
-    model = NearestNeighbors(algorithm='auto', leaf_size=30, metric='euclidean', n_jobs=None, n_neighbors=10)
-    model.fit(filmes_numericos)
+    filmes_processados = pd.DataFrame()
+    model = KMeans(n_clusters=1000)   
+    model.fit(filmes_processados[''])
     
-    print(filmes.iloc[[0]]['tittle']) 
-    filme_para_sugerir = filmes_numericos_copy.iloc[[0]] 
-    
-    
-    # Realizando a busca por filmes semelhantes
-    distance, sugestion = model.kneighbors(filme_para_sugerir)
-    suggestion_list = sugestion[0].tolist()  
-    #print(suggestion_list[0])
-    
-    for i in range(suggestion_list.__len__()):
-        if i != 0:
-            print(filmes.iloc[[suggestion_list[i]]]['tittle'])
-    joblib.dump(model, 'modelo_nearest_neighbors.joblib')
 
 def main():
     filmes = pd.read_csv('filmes_populares_completos.csv')
     filmes_processados = pre_processamento(filmes)
     filmes = pre_processamento(filmes)
     filmes_processados.to_csv('filmes_processados.csv', index=False)
-    modelo(filmes_processados, filmes)
+    #modelo(filmes_processados, filmes)
 
 
 if __name__ == "__main__":
