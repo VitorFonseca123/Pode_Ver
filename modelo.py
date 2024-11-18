@@ -22,13 +22,14 @@ def preprocess_text(text):
 
 
 # Função para pré-processamento do DataFrame
+
 def pre_processamento(filmes):
     # Remover filmes duplicados com base no título e sinopse (ajuste conforme necessário)
     filmes = filmes.drop_duplicates(subset=['titulo', 'sinopse'], keep='last')
     
     filmes = filmes[['titulo_original', 'sinopse', 'generos', 'diretor', 'elenco', 'data_lancamento',
                      'popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao',
-                     'idioma', 'classificacao_etaria', 'palavras_chave']].copy()
+                     'idioma', 'classificacao_etaria', 'palavras_chave', 'id']].copy()
                      
     filmes.rename(columns={'titulo_original': 'tittle', 'data_lancamento': 'lancamento',
                            'classificacao_etaria': 'idade', 'palavras_chave': 'keywords'}, inplace=True)
@@ -46,6 +47,14 @@ def pre_processamento(filmes):
     filmes['idioma_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['idioma'].fillna('')).toarray())
     filmes['elenco_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['elenco'].fillna('')).toarray())
 
+
+    # For each of the TF-IDF columns, ensure they are stored as a proper 2D array, not as a list of arrays.
+    filmes['sinopse_tfidf'] = tfidf_vectorizer.fit_transform(filmes['sinopse'].fillna('')).toarray()
+    filmes['keywords_tfidf'] = tfidf_vectorizer.fit_transform(filmes['keywords'].fillna('')).toarray()
+    filmes['diretor_tfidf'] = tfidf_vectorizer.fit_transform(filmes['diretor'].fillna('')).toarray()
+    filmes['idioma_tfidf'] = tfidf_vectorizer.fit_transform(filmes['idioma'].fillna('')).toarray()
+    filmes['elenco_tfidf'] = tfidf_vectorizer.fit_transform(filmes['elenco'].fillna('')).toarray()
+
     # Extrair ano e calcular idade do filme
     filmes['ano_lancamento'] = pd.to_datetime(filmes['lancamento'], errors='coerce').dt.year
     filmes['idade_filme'] = 2024 - filmes['ano_lancamento']
@@ -60,15 +69,56 @@ def pre_processamento(filmes):
 
 
 def modelo(filmes_processados, filmes):
-    filmes_processados = filmes_processados[filmes['votos'] > 100]
+    #print(filmes.columns.tolist()) 
     
-    # Garantir que todos os nomes de colunas são strings
+    
+    filmes_processados = filmes_processados[filmes_processados['votos'] > 100]
+    filmes_prever = filmes
+    
     filmes_processados.columns = filmes_processados.columns.astype(str)
+    filmes_prever.columns = filmes_prever.columns.astype(str)
 
-    filmes_processados = filmes_processados.fillna(0)
-    filmes_processados = pd.DataFrame()
-    model = KMeans(n_clusters=1000)   
-    model.fit(filmes_processados[''])
+    
+    #filmes_processados = filmes_processados.apply(pd.to_numeric, errors='coerce')
+    #filmes_prever = filmes_prever.apply(pd.to_numeric, errors='coerce')
+    filmes_processados = filmes_processados.fillna(0)  
+    
+    # Filtra apenas as colunas numéricas
+    #filmes_processados = filmes_processados.select_dtypes(include=['number'])
+    #filmes_prever = filmes_prever.select_dtypes(include=['number'])
+    #print(filmes_processados.columns.tolist())
+    # Treinando o modelo com KMeans
+    
+
+    model = KMeans(n_clusters=100, random_state=42)
+    model.fit(filmes_processados[['popularidade', 'votos', 'orcamento', 'receita', 
+                    'duracao', 'idade_filme', 'diretor_tfidf', 
+                    'sinopse_tfidf', 'keywords_tfidf', 'idioma_tfidf', 
+                    'elenco_tfidf']])
+
+    # Selecionando filmes para previsão
+    ids_para_prever = [86] 
+    filmes_para_prever = filmes_prever[filmes_prever['id'].isin(ids_para_prever)]
+    filmes_para_prever = filmes_para_prever.fillna(0)  
+
+    previsoes = model.predict(filmes_para_prever[['popularidade', 'votos', 'orcamento', 
+                                                  'receita', 'duracao', 'idade_filme', 
+                                                  'diretor_tfidf', 'sinopse_tfidf', 
+                                                  'keywords_tfidf', 'idioma_tfidf', 
+                                                  'elenco_tfidf']])
+    
+    filmes_com_titulos = filmes_processados.copy()
+
+    # Adiciona o número do cluster ao dataframe original
+    filmes_com_titulos['cluster'] = model.labels_
+
+    # Filtra filmes no cluster previsto
+    cluster_previsto = previsoes[0]
+    filmes_no_cluster = filmes_com_titulos[filmes_com_titulos['cluster'] == cluster_previsto]
+
+    # Exibe os nomes dos filmes
+    print("Filmes no cluster previsto:")
+    print(filmes_no_cluster[['tittle', 'cluster']])
     
 
 def main():
@@ -76,7 +126,7 @@ def main():
     filmes_processados = pre_processamento(filmes)
     filmes = pre_processamento(filmes)
     filmes_processados.to_csv('filmes_processados.csv', index=False)
-    #modelo(filmes_processados, filmes)
+    modelo(filmes_processados, filmes)
 
 
 if __name__ == "__main__":
