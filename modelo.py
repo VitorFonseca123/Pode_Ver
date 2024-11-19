@@ -26,64 +26,74 @@ def pre_processamento(filmes):
     # Remover filmes duplicados com base no título e sinopse (ajuste conforme necessário)
     filmes = filmes.drop_duplicates(subset=['titulo', 'sinopse'], keep='last')
     
-    filmes = filmes[['titulo_original', 'sinopse', 'generos', 'diretor', 'elenco', 'data_lancamento',
+    filmes = filmes[['titulo','titulo_original', 'sinopse', 'generos', 'diretor', 'elenco', 'data_lancamento',
                      'popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao',
-                     'idioma', 'classificacao_etaria', 'palavras_chave']].copy()
+                     'idioma', 'classificacao_etaria', 'palavras_chave', 'id']].copy()
                      
     filmes.rename(columns={'titulo_original': 'tittle', 'data_lancamento': 'lancamento',
                            'classificacao_etaria': 'idade', 'palavras_chave': 'keywords'}, inplace=True)
     
     # Preprocessamento de colunas de texto
     filmes['tittle'] = filmes['tittle'].apply(preprocess_text)
+    filmes['elenco'] = filmes['elenco'].apply(preprocess_text)
     filmes['sinopse'] = filmes['sinopse'].apply(lambda x: preprocess_text(str(x)))
     
     # Vetorização TF-IDF para 'sinopse' e 'keywords'
     tfidf_vectorizer = TfidfVectorizer(max_features=500)
-    filmes['sinopse_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['sinopse'].fillna('')).toarray())
-    filmes['keywords_tfidf'] = list(tfidf_vectorizer.fit_transform(filmes['keywords'].fillna('')).toarray())
+    
+    # Transformação para cada uma das colunas
+    sinopse_tfidf = tfidf_vectorizer.fit_transform(filmes['sinopse'].fillna('')).toarray()
+    keywords_tfidf = tfidf_vectorizer.fit_transform(filmes['keywords'].fillna('')).toarray()
+    diretor_tfidf = tfidf_vectorizer.fit_transform(filmes['diretor'].fillna('')).toarray()
+    idioma_tfidf = tfidf_vectorizer.fit_transform(filmes['idioma'].fillna('')).toarray()
+    elenco_tfidf = tfidf_vectorizer.fit_transform(filmes['elenco'].fillna('')).toarray()
+
+    # Convertendo os arrays para DataFrame para manter as dimensões e dar nome às colunas
+    sinopse_tfidf_df = pd.DataFrame(sinopse_tfidf, columns=[f'sinopse_tfidf_{i}' for i in range(sinopse_tfidf.shape[1])])
+    keywords_tfidf_df = pd.DataFrame(keywords_tfidf, columns=[f'keywords_tfidf_{i}' for i in range(keywords_tfidf.shape[1])])
+    diretor_tfidf_df = pd.DataFrame(diretor_tfidf, columns=[f'diretor_tfidf_{i}' for i in range(diretor_tfidf.shape[1])])
+    idioma_tfidf_df = pd.DataFrame(idioma_tfidf, columns=[f'idioma_tfidf_{i}' for i in range(idioma_tfidf.shape[1])])
+    elenco_tfidf_df = pd.DataFrame(elenco_tfidf, columns=[f'elenco_tfidf_{i}' for i in range(elenco_tfidf.shape[1])])
+
+    # Concatenando as novas colunas de TF-IDF ao DataFrame original
+    filmes = pd.concat([filmes, sinopse_tfidf_df, keywords_tfidf_df, diretor_tfidf_df, idioma_tfidf_df, elenco_tfidf_df], axis=1)
     
     # Extrair ano e calcular idade do filme
     filmes['ano_lancamento'] = pd.to_datetime(filmes['lancamento'], errors='coerce').dt.year
     filmes['idade_filme'] = 2024 - filmes['ano_lancamento']
     
-    # Concatenar todas as características em um DataFrame final
-    filmes.rename(columns={'titulo_original': 'title', 'data_lancamento': 'lancamento',
-                       'classificacao_etaria': 'idade', 'palavras_chave': 'keywords'}, inplace=True)
-
-   
-    
     return filmes
 
 
 def modelo(filmes_processados, filmes):
-    filmes_processados = filmes_processados[filmes['votos'] > 100]
     
+    filmes_processados = filmes_processados[filmes['votos'] > 100]
+    filmes_prever = filmes
     # Garantir que todos os nomes de colunas são strings
+   
     filmes_processados.columns = filmes_processados.columns.astype(str)
+    filmes_prever.columns = filmes_prever.columns.astype(str)
 
     filmes_processados = filmes_processados.fillna(0)
-
-    # Selecionando apenas colunas numéricas para o modelo
-    filmes_numericos = filmes_processados.select_dtypes(include=[np.number])
-    filmes_numericos_copy = filmes.select_dtypes(include=[np.number])
-
+    colunas_numericas = filmes_processados.select_dtypes(include=['number']).columns
+    
     # Ajustando o modelo NearestNeighbors com as colunas numéricas
     model = NearestNeighbors(algorithm='auto', leaf_size=30, metric='euclidean', n_jobs=None, n_neighbors=10)
-    model.fit(filmes_numericos)
-    
-    print(filmes.iloc[[0]]['tittle']) 
-    filme_para_sugerir = filmes_numericos_copy.iloc[[0]] 
-    
-    
-    # Realizando a busca por filmes semelhantes
-    distance, sugestion = model.kneighbors(filme_para_sugerir)
+    model.fit(filmes_processados[colunas_numericas])
+
+    ids_para_prever = [86] 
+    filmes_para_prever = filmes_prever[filmes_prever['id'].isin(ids_para_prever)]
+    filmes_para_prever = filmes_para_prever.fillna(0)  
+    print(filmes_para_prever['titulo'])
+    distance, sugestion = model.kneighbors(filmes_para_prever[colunas_numericas])
     suggestion_list = sugestion[0].tolist()  
     #print(suggestion_list[0])
     
     for i in range(suggestion_list.__len__()):
         if i != 0:
-            print(filmes.iloc[[suggestion_list[i]]]['tittle'])
-    joblib.dump(model, 'modelo_nearest_neighbors.joblib')
+            print(filmes.iloc[[suggestion_list[i]]])
+    # Salvar o modelo treinado
+    #joblib.dump(model, 'modelo_nearest_neighbors.joblib')
 
 def main():
     filmes = pd.read_csv('filmes_populares_completos.csv')
