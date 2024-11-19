@@ -6,7 +6,7 @@ import re
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from sklearn.neighbors import NearestNeighbors
-import joblib
+import pickle
 
 # Função para tokenização e remoção de stopwords
 def preprocess_text(text):
@@ -80,20 +80,46 @@ def modelo(filmes_processados, filmes):
     # Ajustando o modelo NearestNeighbors com as colunas numéricas
     model = NearestNeighbors(algorithm='auto', leaf_size=30, metric='euclidean', n_jobs=None, n_neighbors=10)
     model.fit(filmes_processados[colunas_numericas])
-
+    num_chunks = save_model_in_chunks(model, 'modelo_filmes', chunk_size=50)
+    print(num_chunks)
     ids_para_prever = [86] 
     filmes_para_prever = filmes_prever[filmes_prever['id'].isin(ids_para_prever)]
     filmes_para_prever = filmes_para_prever.fillna(0)  
     print(filmes_para_prever['titulo'])
-    distance, sugestion = model.kneighbors(filmes_para_prever[colunas_numericas])
+    model_Reload = load_model_from_chunks('modelo_filmes', num_chunks)
+    distance, sugestion = model_Reload.kneighbors(filmes_para_prever[colunas_numericas])
     suggestion_list = sugestion[0].tolist()  
     #print(suggestion_list[0])
     
     for i in range(suggestion_list.__len__()):
         if i != 0:
             print(filmes.iloc[[suggestion_list[i]]])
-    # Salvar o modelo treinado
-    #joblib.dump(model, 'modelo_nearest_neighbors.joblib')
+    
+
+def save_model_in_chunks(model, base_filename, chunk_size=50):
+    serialized_model = pickle.dumps(model)
+
+    chunk_size_bytes = chunk_size * 1024 * 1024
+    chunks = [serialized_model[i:i + chunk_size_bytes] for i in range(0, len(serialized_model), chunk_size_bytes)]
+
+    for idx, chunk in enumerate(chunks):
+        file_name = f"{base_filename}_part{idx + 1}.pkl"
+        with open(file_name, "wb") as f:
+            f.write(chunk)
+        print(f"Salvou: {file_name}, tamanho: {len(chunk)} bytes")
+
+    return len(chunks)  # Retorna o número total de partes
+
+
+def load_model_from_chunks(base_filename, num_chunks):
+    serialized_model = b""
+    for idx in range(1, num_chunks + 1):
+        file_name = f"{base_filename}_part{idx}.pkl"
+        with open(file_name, "rb") as f:
+            data = f.read()
+            serialized_model += data
+            print(f"Lido: {file_name}, tamanho: {len(data)} bytes")
+    return pickle.loads(serialized_model)
 
 def main():
     filmes = pd.read_csv('filmes_populares_completos.csv')
