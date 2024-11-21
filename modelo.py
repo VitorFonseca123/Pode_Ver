@@ -28,7 +28,7 @@ def pre_processamento(filmes):
     
     filmes = filmes[['titulo','titulo_original', 'sinopse', 'generos', 'diretor', 'elenco', 'data_lancamento',
                      'popularidade', 'classificacao', 'votos', 'orcamento', 'receita', 'duracao',
-                     'idioma', 'classificacao_etaria', 'palavras_chave', 'id']].copy()
+                     'idioma', 'classificacao_etaria', 'palavras_chave', 'id', 'poster_url']].copy()
                      
     filmes.rename(columns={'titulo_original': 'tittle', 'data_lancamento': 'lancamento',
                            'classificacao_etaria': 'idade', 'palavras_chave': 'keywords'}, inplace=True)
@@ -81,6 +81,7 @@ def modelo(filmes_processados, filmes):
     model = NearestNeighbors(algorithm='auto', leaf_size=30, metric='euclidean', n_jobs=None, n_neighbors=10)
     model.fit(filmes_processados[colunas_numericas])
     num_chunks = save_model_in_chunks(model, 'modelo_filmes', chunk_size=50)
+    
     print(num_chunks)
     ids_para_prever = [86] 
     filmes_para_prever = filmes_prever[filmes_prever['id'].isin(ids_para_prever)]
