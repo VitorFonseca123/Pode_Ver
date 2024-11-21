@@ -114,6 +114,7 @@ def resultados():
             filme_sugerido = filmes_completos.iloc[sugestion[i][j]]  # Adiciona a linha completa do filme
             filmes_sugeridos.append(filme_sugerido)  # Adiciona o DataFrame completo à lista
     #print(len(filmes_sugeridos))
+    #print(filmes_sugeridos)
     # Filtrar os filmes sugeridos que não estão na lista de filmes já escolhidos
     filmes_sugeridos_unicos = [filme for filme in filmes_sugeridos if filme['titulo'] not in filmes]
 
