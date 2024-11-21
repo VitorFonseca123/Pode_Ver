@@ -1,6 +1,8 @@
 import os
+import pickle
 from flask import Flask, request, jsonify, render_template, session
 import pandas as pd
+import random
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'PODEVER'
@@ -60,53 +62,75 @@ def enviar_filmes():
     data = request.get_json()
     print(f"Dados recebidos: {data}")
     
+    # Obter a lista de filmes da solicitação
     filmes = data.get('filmes', [])
     
-    # Pegar apenas o primeiro filme, se a lista não estiver vazia
-    primeiro_filme = filmes[0] if filmes else None
+    if filmes:
+        print(f"Filmes recebidos: {filmes}")
     
-    if primeiro_filme:
-        print(f"Primeiro filme: {primeiro_filme}")
-    else:
-        print("Nenhum filme recebido")
+    # Armazenar todos os filmes na sessão
+    session['filmesAdicionados'] = filmes
     
-    # Armazenar apenas o primeiro filme na sessão
-    session['primeiro_filme'] = primeiro_filme
-    
-    return jsonify({'status': 'success', 'primeiro_filme': primeiro_filme})
+    # Retornar todos os filmes na resposta
+    return jsonify({'status': 'success', 'filmes': filmes})
+
+def load_model_from_chunks(base_filename, num_chunks):
+    serialized_model = b""
+    for idx in range(1, num_chunks + 1):
+        file_name = f"{base_filename}_part{idx}.pkl"
+        with open(file_name, "rb") as f:
+            data = f.read()
+            serialized_model += data
+            print(f"Lido: {file_name}, tamanho: {len(data)} bytes")
+    return pickle.loads(serialized_model)
 
 @app.route('/resultados')
 def resultados():
-    # Pegar o primeiro filme da sessão (ou None se não houver)
-    primeiro_filme = session.get('primeiro_filme')
+    # Carregar o arquivo CSV contendo os filmes processados
+    filmes_completos = pd.read_csv('filmes_processados.csv')
+
+    # Obter a lista de filmes armazenados na sessão
+    filmes = session.get('filmesAdicionados', [])
     
-    # Debug: Verificar se primeiro_filme está na sessão
-    print(f"Primeiro filme na sessão: {primeiro_filme}")
+    # Lista para armazenar os filmes cujo título seja igual ao do csv
+    filmes_resultados = []
+    id_filmes = []
     
-    if primeiro_filme and not df.empty:
-        # Debug: Verificar o conteúdo do DataFrame
-        print(f"Conteúdo do DataFrame: {df.head()}")
-        
-        # Buscar o filme no DataFrame
-        filme_info = df[df['titulo'] == primeiro_filme]
-        
-        # Debug: Verificar se a busca no DataFrame retornou resultados
-        print(f"Informações do filme encontrado: {filme_info}")
-        
-        if not filme_info.empty:
-            poster = filme_info.iloc[0]['poster_url']
-            descricao = filme_info.iloc[0]['sinopse'] if 'sinopse' in filme_info.columns else 'Descrição não disponível'
-        else:
-            poster = None
-            descricao = None
+    for i in filmes:
+        filme_info = filmes_completos[filmes_completos['titulo'] == i]
+        id_filmes.append(filme_info['id'].iloc[0].tolist())
+    
+    filmes_para_prever = filmes_completos[filmes_completos['id'].isin(id_filmes)]
+    filmes_para_prever = filmes_para_prever.fillna(0)
+    
+    model_Reload = load_model_from_chunks('modelo_filmes', 3)
+    colunas_numericas = filmes_completos.select_dtypes(include=['number']).columns
+    distance, sugestion = model_Reload.kneighbors(filmes_para_prever[colunas_numericas])
+    
+    # Agora vamos pegar todos os filmes sugeridos para todos os filmes em filmes_para_prever
+    filmes_sugeridos = []
+    for i in range(len(sugestion)):  # Iterar sobre todos os filmes em filmes_para_prever
+        for j in range(1, len(sugestion[i])):  # Começar de 1 para não pegar o próprio filme
+            filme_sugerido = filmes_completos.iloc[sugestion[i][j]]  # Adiciona a linha completa do filme
+            filmes_sugeridos.append(filme_sugerido)  # Adiciona o DataFrame completo à lista
+    #print(len(filmes_sugeridos))
+    # Filtrar os filmes sugeridos que não estão na lista de filmes já escolhidos
+    filmes_sugeridos_unicos = [filme for filme in filmes_sugeridos if filme['titulo'] not in filmes]
+
+    # Sortear um filme único
+    filme_sorteado = random.choice(filmes_sugeridos_unicos)
+
+    if not filme_sorteado.empty:
+        filme_nome = filme_sorteado['titulo']
+        poster = filme_sorteado['poster_url']
+        descricao = filme_sorteado['sinopse'] if 'sinopse' in filme_sorteado else 'Descrição não disponível'
     else:
         poster = None
         descricao = None
     
-    # Debug: Verificar os valores de poster e descricao
-    print(f"Poster: {poster}, Descrição: {descricao}")
-    
-    return render_template('Resultados.html', filme=primeiro_filme, poster=poster, descricao=descricao)
+    return render_template('Resultados.html', filme=filme_nome, poster=poster, descricao=descricao)
+
+
 
 @app.route('/Quizz')
 def Quizz():
