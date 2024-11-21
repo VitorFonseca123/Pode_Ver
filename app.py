@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'PODEVER'
 
 # Definir o caminho correto para o CSV
-csv_path = os.path.join(os.path.dirname(__file__), 'filmes_processados.csv')
+csv_path = os.path.join(os.path.dirname(__file__), 'filmes_populares_completos.csv')
 
 # Carregar o dataset CSV
 try:
@@ -87,7 +87,7 @@ def load_model_from_chunks(base_filename, num_chunks):
 @app.route('/resultados')
 def resultados():
     # Carregar o arquivo CSV contendo os filmes processados
-    #filmes_completos = pd.read_csv('filmes_processados.csv')
+    filmes_completos = pd.read_csv('filmes_processados.csv')
 
     # Obter a lista de filmes armazenados na sessão
     filmes = session.get('filmesAdicionados', [])
@@ -97,21 +97,21 @@ def resultados():
     id_filmes = []
     
     for i in filmes:
-        filme_info = df[df['titulo'] == i]
+        filme_info = filmes_completos[filmes_completos['titulo'] == i]
         id_filmes.append(filme_info['id'].iloc[0].tolist())
     
-    filmes_para_prever = df[df['id'].isin(id_filmes)]
+    filmes_para_prever = filmes_completos[filmes_completos['id'].isin(id_filmes)]
     filmes_para_prever = filmes_para_prever.fillna(0)
     
     model_Reload = load_model_from_chunks('modelo_filmes', 3)
-    colunas_numericas = df.select_dtypes(include=['number']).columns
+    colunas_numericas = filmes_completos.select_dtypes(include=['number']).columns
     distance, sugestion = model_Reload.kneighbors(filmes_para_prever[colunas_numericas])
     
     # Agora vamos pegar todos os filmes sugeridos para todos os filmes em filmes_para_prever
     filmes_sugeridos = []
     for i in range(len(sugestion)):  # Iterar sobre todos os filmes em filmes_para_prever
         for j in range(1, len(sugestion[i])):  # Começar de 1 para não pegar o próprio filme
-            filme_sugerido = df.iloc[sugestion[i][j]]  # Adiciona a linha completa do filme
+            filme_sugerido = filmes_completos.iloc[sugestion[i][j]]  # Adiciona a linha completa do filme
             filmes_sugeridos.append(filme_sugerido)  # Adiciona o DataFrame completo à lista
     #print(len(filmes_sugeridos))
     #print(filmes_sugeridos)
